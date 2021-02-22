@@ -119,66 +119,7 @@ client.once('ready', () => {
 	client.channels.cache.get('812082273393704960').send('Started Successfully!');
 });
 
-client.on('message', message => {
-	if (!message.content.startsWith(config.prefix) || message.author.bot) return;
 
-	const args = message.content.slice(config.prefix.length).trim().split(/ +/);
-	const commandName = args.shift().toLowerCase();
-
-	const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
-
-	if (!command) return;
-
-	if (command.args && args.length < command.argamnt) {
-		const Usage = new Discord.MessageEmbed()
-			.setColor(3447003)
-			.setTitle('Usage')
-			.setDescription(`\`${config.prefix + command.name + ' ' + command.usage}\``);
-		return message.channel.send(Usage);
-	}
-
-	if (command.guildOnly && message.channel.type === 'dm') {
-		return message.reply('You can only execute this command in a Discord Server!');
-	}
-
-	if (command.permissions) {
-		const authorPerms = message.channel.permissionsFor(message.author);
-		if (!authorPerms || !authorPerms.has(command.permissions)) {
-			return message.reply('You can\'t do that!');
-		}
-	}
-
-	if (!cooldowns.has(command.name)) {
-		cooldowns.set(command.name, new Discord.Collection());
-	}
-
-	const now = Date.now();
-	const timestamps = cooldowns.get(command.name);
-	const cooldownAmount = (command.cooldown || 3) * 1000;
-
-	if (timestamps.has(message.author.id)) {
-		const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
-		const random = Math.floor(Math.random() * 5);
-		const messages = ['Do I look like Usain Bolt to u?', 'BRUH IM JUST A DOG SLOW DOWN', 'can u not', 'leave me alone ;-;'];
-		if (now < expirationTime) {
-			const timeLeft = (expirationTime - now) / 1000;
-			return message.reply({ embed: {
-				color: 15158332,
-				title: messages[random],
-				description: `wait ${timeLeft.toFixed(1)} more seconds before reusing ${config.prefix + command.name}.`,
-			} });
-		}
-	}
-
-	try {
-		if (message.author.id !== '249638347306303499') client.users.cache.get('249638347306303499').send(`**COMMAND: ${message.author.tag} >** ${message.content}`);
-		command.execute(message, args, client, sleep, config, Client, Discord);
-	}
-	catch (error) {
-		console.error(error);
-		message.reply('there was an error trying to execute that command!');
-	}
-});
 
 client.on("message", (msg) => {
   if (msg.content === "!invite") {
